@@ -70,6 +70,7 @@ New Procedures and Functions
 
     int GetInstrumentsSGIX(void)
 
+Misc
     An example of using the calls to test the extension:
 {
 #ifdef GL_SGIX_instruments
