@@ -127,7 +127,7 @@ New Procedures and Functions
 
     /*
      *	pipeName uniquely names a pipe in the form ":display.screen"
-     *	src origin/size are in managed area coordinates (pixels).
+     *	src origin/size are in managed area coordinates in pixels.
      *	dest origin/size are in output channel display coordinates.
      */
     typedef struct {
@@ -144,7 +144,7 @@ New Procedures and Functions
 
     /*
      *	pipeName uniquely names a pipe in the form ":display.screen"
-     *	origin/size are in managed area coordinates (pixels)
+     *	origin/size are in managed area coordinates in pixels
      */
     typedef struct {
 	char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX];
