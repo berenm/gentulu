@@ -64,7 +64,7 @@ New Procedures and Functions
 
         modestride      Specifies the how the mode array is strided.
                         Typical values are 0 (single primitive mode 
-                        for all primitives) and sizeof(GLenum) 
+                        for all primitives) and size of GLenum
                         (seperate primitive mode for each primitive).
 
 
@@ -98,7 +98,7 @@ New Procedures and Functions
 
         modestride      Specifies the how the mode array is strided.
                         Typical values are 0 (single primitive mode 
-                        for all primitives) and sizeof(GLenum) 
+                        for all primitives) and size of GLenum
                         (seperate primitive mode for each primitive).
 
 New Tokens
