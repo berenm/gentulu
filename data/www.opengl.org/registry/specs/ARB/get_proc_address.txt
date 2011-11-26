@@ -142,7 +142,7 @@ Issues
 
 New Procedures and Functions
 
-    void (*glXGetProcAddressARB(const GLubyte *procName))(...)
+    GLfunction glXGetProcAddressARB(const GLubyte *procName)
 
 New Tokens
 
