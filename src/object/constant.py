@@ -6,10 +6,12 @@
 
 constants = []
 
-class constant():
-  def __init__(self, name, value, enum_name):
+class constant:
+  def __init__(self, name, value, extension_name, enum_name, **kwargs):
     self.name = name
     self.value = value
+
+    self.extension_name = extension_name
     self.enum_name = enum_name
 
     constants.append(self)

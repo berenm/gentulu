@@ -12,7 +12,6 @@ from parser.extension import extension_parser
 from parser.dotspec import dotspec_enum_parser, dotspec_function_parser
 from parser.dottm import dottm_parser
 from utils import log, option_parser, print_help
-from object.enum import enums
 from object.constant import constants
 
 parser = option_parser()

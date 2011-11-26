@@ -6,6 +6,8 @@
 
 import re
 from utils import log
+from object.constant import constant
+from object.function import function
 
 class dotspec_enum_parser(object):
   def __init__(self, library_name):
@@ -22,14 +24,12 @@ class dotspec_enum_parser(object):
 
     patterns = {}
     patterns['constant'] = r'^^(?P<name>\w+)\s*=\s*(?P<value>[-()\w]+)(?:\s*#.*)?$'
-    patterns['enum'] = r'^(?P<name>\w+)\s*enum\s*:\s*(?P<comments>.*)$'
-    patterns['sub-enum'] = r'^passthru:\s*/\*\s*(?P<name>\w+)\s*\*/$'
+    patterns['extension'] = r'^(?P<name>\w+)\s*enum\s*:\s*(?P<comments>.*)$'
+    patterns['enum'] = r'^passthru:\s*/\*\s*(?P<name>\w+)\s*\*/$'
     patterns['use'] = r'^use\s(?P<enum>\w+)\s*(?P<constant>\w+)$'
 
     patterns['comment'] = r'^#.*$'
     patterns['passthru-reuse'] = r'^passthru.*Reuse.*$'
-
-    enums = []
 
     with open(filename, 'r') as dotspec_file:
       enum_stack = [ self.enum_prefix, self.enum_prefix, self.enum_prefix ]
@@ -42,57 +42,55 @@ class dotspec_enum_parser(object):
             matched = True
 
             if k == 'constant':
-              current_enum = enum_stack[-1]
+              enum_name = enum_stack[-1]
+              extension_name = enum_stack[-2]
               constant_name = match.group('name')
               constant_value = match.group('value')
 
               if not constant_name.startswith(self.constant_prefix):
                 constant_name = self.constant_prefix + constant_name
 
-              value_key = current_enum + '.' + constant_name
+              value_key = enum_name + '.' + constant_name
               for e in enum_stack:
                 values[e + '.' + constant_name] = constant_value
 
-              constants.append({'enum_name': current_enum, 'name': constant_name, 'value_key': value_key })
+              constants.append({'extension': extension_name, 'enum': enum_name, 'name': constant_name, 'value_key': value_key })
+
+            elif k == 'extension':
+              enum_name = match.group('name')
+              if not enum_name.startswith(self.enum_prefix):
+                enum_name = self.enum_prefix + enum_name
+
+              enum_stack.pop()
+              enum_stack.pop()
+              enum_stack.append(enum_name)
+              enum_stack.append(enum_name)
 
             elif k == 'enum':
               enum_name = match.group('name')
               if not enum_name.startswith(self.enum_prefix):
                 enum_name = self.enum_prefix + enum_name
 
-              enums.append(enum_name)
-
-              enum_stack.pop()
-              enum_stack.pop()
-              enum_stack.append(enum_name)
-              enum_stack.append(enum_name)
-
-            elif k == 'sub-enum':
-              enum_name = match.group('name')
-              if not enum_name.startswith(self.enum_prefix):
-                enum_name = self.enum_prefix + enum_name
-
-              enums.append(enum_name)
-
               enum_stack.pop()
               enum_stack.append(enum_name)
 
             elif k == 'use':
-              current_enum = enum_stack[-1]
-              enum_name = match.group('enum')
+              enum_name = enum_stack[-1]
+              extension_name = enum_stack[-2]
+              foreign_enum_name = match.group('enum')
               constant_name = match.group('constant')
 
-              if not enum_name.startswith(self.enum_prefix):
-                enum_name = self.enum_prefix + enum_name
+              if not foreign_enum_name.startswith(self.enum_prefix):
+                foreign_enum_name = self.enum_prefix + foreign_enum_name
               if not constant_name.startswith(self.constant_prefix):
                 constant_name = self.constant_prefix + constant_name
 
-              value_key = enum_name + '.' + constant_name
+              value_key = foreign_enum_name + '.' + constant_name
 
               for e in enum_stack:
                 values[e + '.' + constant_name] = value_key
 
-              constants.append({'enum_name': current_enum, 'name': constant_name, 'value_key': value_key })
+              constants.append({'extension': extension_name, 'enum': enum_name, 'name': constant_name, 'value_key': value_key })
 
             break
 
@@ -112,6 +110,8 @@ class dotspec_enum_parser(object):
 
     for c in constants:
       c['value'] = values.get(c['value_key'], values.get(c['value_key'].replace('.', '_DEPRECATED.'), c['value_key']))
+
+      constant(c['name'], c['value'], c['extension'], c['enum'])
 
 class dotspec_function_parser(object):
   def __init__(self, library_name):
@@ -155,9 +155,6 @@ class dotspec_function_parser(object):
     patterns['glextmask'] = r'^glextmask.*$'
     patterns['glxvectorequiv'] = r'^glxvectorequiv.*$'
 
-    known_categories = []
-    categories = {}
-
     functions = []
     current_function = None
 
@@ -197,7 +194,7 @@ class dotspec_function_parser(object):
               if not submodule_name.startswith(self.module_prefix):
                 submodule_name = self.module_prefix + submodule_name
 
-              current_function['sub-module'] = submodule_name
+              current_function['category'] = submodule_name
 
             elif k == 'category':
               module_name = match.group('name')
@@ -208,8 +205,8 @@ class dotspec_function_parser(object):
               if submodule_name and not submodule_name.startswith(self.module_prefix):
                 submodule_name = self.module_prefix + submodule_name
 
-              current_function['module'] = module_name
-              current_function['submodule'] = submodule_name
+              current_function['extension'] = module_name
+              current_function['category'] = submodule_name
 
             elif k == 'function':
               if current_function is not None:
@@ -230,10 +227,8 @@ class dotspec_function_parser(object):
         if not matched:
           errors.append('U: ' + line)
 
-#      for f in functions:
-#        print f['name'], f.get('module', '<none>'), f.get('sub-module', '<none>')
-#        else:
-#          errors.append('U: ' + line)
-
     for e in errors:
       log.error(filename + ': ' + e)
+
+    for f in functions:
+      function(f['name'], f['return'], f.get('extension'), f.get('category'))
