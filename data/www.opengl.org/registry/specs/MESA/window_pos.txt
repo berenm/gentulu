@@ -67,7 +67,7 @@ New Procedures and Functions
     void WindowPos4iMESA(int x, int y, int z, int w)
     void WindowPos4sMESA(short x, short y, short z, short w)
     void WindowPos4fMESA(float x, float y, float z, float w)
-    void WindowPos4dMESA(double x, double y, double z, double )
+    void WindowPos4dMESA(double x, double y, double z, double w)
     void WindowPos4ivMESA(const int *p)
     void WindowPos4svMESA(const short *p)
     void WindowPos4fvMESA(const float *p)
