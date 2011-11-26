@@ -9,7 +9,7 @@ from resolver import resolver
 import re
 from parser.docbook import docbook_parser
 from parser.extension import extension_parser
-from parser.dotspec import dotspec_parser
+from parser.dotspec import dotspec_enum_parser, dotspec_function_parser
 from parser.dottm import dottm_parser
 from utils import log, option_parser, print_help
 from object.enum import enums
@@ -87,30 +87,48 @@ sources.append(source('glext', extension_parser(),
     index='http://www.opengl.org/registry/',
     base='http://www.opengl.org/registry/'))
 
-sources.append(source('glenums', dotspec_parser('gl'),
+sources.append(source('glenums', dotspec_enum_parser('gl'),
     regexp=r'^api/enumext\.spec$',
     xpath='//a/@href',
     index='http://www.opengl.org/registry/',
     base='http://www.opengl.org/registry/'))
 
-sources.append(source('glenums', dotspec_parser('glX'),
+sources.append(source('glenums', dotspec_enum_parser('glX'),
     regexp=r'^api/glxenumext\.spec$',
     xpath='//a/@href',
     index='http://www.opengl.org/registry/',
     base='http://www.opengl.org/registry/'))
 
-sources.append(source('glenums', dotspec_parser('wgl'),
+sources.append(source('glenums', dotspec_enum_parser('wgl'),
     regexp=r'^api/wglenumext\.spec$',
     xpath='//a/@href',
     index='http://www.opengl.org/registry/',
     base='http://www.opengl.org/registry/'))
 
-#sources.append(source('glfuncs', dotspec_parser(),
-#    regexp=r'^api/w?glx?(?:ext)?\.spec$',
-#    xpath='//a/@href',
-#    index='http://www.opengl.org/registry/',
-#    base='http://www.opengl.org/registry/'))
-#
+sources.append(source('glenums', dotspec_enum_parser('egl'),
+    regexp=r'^api/eglenum\.spec$',
+    xpath='//a/@href',
+    index='http://www.khronos.org/registry/egl/',
+    base='http://www.khronos.org/registry/egl/'))
+
+sources.append(source('glfuncs', dotspec_function_parser('gl'),
+    regexp=r'^api/gl(?:ext)?\.spec$',
+    xpath='//a/@href',
+    index='http://www.opengl.org/registry/',
+    base='http://www.opengl.org/registry/'))
+
+sources.append(source('glfuncs', dotspec_function_parser('glX'),
+    regexp=r'^api/glx(?:ext)?\.spec$',
+    xpath='//a/@href',
+    index='http://www.opengl.org/registry/',
+    base='http://www.opengl.org/registry/'))
+
+sources.append(source('glfuncs', dotspec_function_parser('wgl'),
+    regexp=r'^api/wgl(?:ext)?\.spec$',
+    xpath='//a/@href',
+    index='http://www.opengl.org/registry/',
+    base='http://www.opengl.org/registry/'))
+
 #sources.append(source('gltypes', dottm_parser(),
 #    regexp=r'^api/[a-z]+\.tm$',
 #    xpath='//a/@href',
@@ -120,8 +138,9 @@ sources.append(source('glenums', dotspec_parser('wgl'),
 for s in sources:
   s.parse()
 
-for n in sorted(set([ e.name for e in enums ])):
-  print 'enum class', n, '{'
-  for v, c in sorted(set([ (c.value, c.name) for c in constants if c.enum_name == n])):
-    print '  ', c, '=', v, ','
-  print '};'
+#print '#include <cstdint>'
+#for n in sorted(set([ e.name for e in enums ])):
+#  print 'enum class', n, ': std::uint32_t {'
+#  for v, c in sorted(set([ (c.value, c.name) for c in constants if c.enum_name == n])):
+#    print '  ', c, '=', v, ','
+#  print '};'

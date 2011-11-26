@@ -1,3 +1,5 @@
-#Sat Nov 26 19:40:31 CET 2011
+#Sat Nov 26 20:02:20 CET 2011
 eclipse.preferences.version=1
+encoding//src/gentulu.py=utf-8
+encoding//src/parser/dotspec.py=utf-8
 encoding//src/resolver.py=utf-8
