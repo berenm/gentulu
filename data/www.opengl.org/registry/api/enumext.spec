@@ -1616,13 +1616,13 @@ passthru: /* Reuse tokens from ARB_tessellation_shader */
 	use ARB_tessellation_shader	    TESS_CONTROL_SHADER
 passthru: /* Reuse tokens from ARB_texture_buffer_object_rgb32 (none) */
 passthru: /* Reuse tokens from ARB_transform_feedback2 */
-	use ARB_tessellation_shader	    TRANSFORM_FEEDBACK
-	use ARB_tessellation_shader	    TRANSFORM_FEEDBACK_BUFFER_PAUSED
-	use ARB_tessellation_shader	    TRANSFORM_FEEDBACK_BUFFER_ACTIVE
-	use ARB_tessellation_shader	    TRANSFORM_FEEDBACK_BINDING
+	use ARB_transform_feedback2	    TRANSFORM_FEEDBACK
+	use ARB_transform_feedback2	    TRANSFORM_FEEDBACK_BUFFER_PAUSED
+	use ARB_transform_feedback2	    TRANSFORM_FEEDBACK_BUFFER_ACTIVE
+	use ARB_transform_feedback2	    TRANSFORM_FEEDBACK_BINDING
 passthru: /* Reuse tokens from ARB_transform_feedback3 */
-	use ARB_tessellation_shader	    MAX_TRANSFORM_FEEDBACK_BUFFERS
-	use ARB_tessellation_shader	    MAX_VERTEX_STREAMS
+	use ARB_transform_feedback3	    MAX_TRANSFORM_FEEDBACK_BUFFERS
+	use ARB_transform_feedback3	    MAX_VERTEX_STREAMS
 
 ###############################################################################
 #
@@ -2970,7 +2970,7 @@ ARB_gpu_shader5 enum:
 	MIN_FRAGMENT_INTERPOLATION_OFFSET		= 0x8E5B
 	MAX_FRAGMENT_INTERPOLATION_OFFSET		= 0x8E5C
 	FRAGMENT_INTERPOLATION_OFFSET_BITS		= 0x8E5D
-	use ARB_texture_multisample	    MAX_VERTEX_STREAMS
+	use ARB_transform_feedback3	    MAX_VERTEX_STREAMS
 
 ###############################################################################
 

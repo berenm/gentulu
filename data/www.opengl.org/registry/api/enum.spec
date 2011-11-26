@@ -7498,7 +7498,7 @@ ARB_transform_feedback3 enum:
 	MAX_VERTEX_STREAMS				= 0x8E71
 
 ARB_gpu_shader5 enum: (additional; see above)
-	use ARB_texture_multisample	    MAX_VERTEX_STREAMS
+	use ARB_transform_feedback3	    MAX_VERTEX_STREAMS
 
 ARB_tessellation_shader enum:
 	PATCH_VERTICES					= 0x8E72
