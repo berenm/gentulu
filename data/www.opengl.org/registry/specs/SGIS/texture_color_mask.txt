@@ -57,7 +57,7 @@ Issues
 
 New Procedures and Functions
 
-    void TextureColorMaskSGIS(boolean r, boolean g, boolean, b, boolean a );
+    void TextureColorMaskSGIS(boolean r, boolean g, boolean b, boolean a );
 
 New Tokens
 
