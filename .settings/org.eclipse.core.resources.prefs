@@ -1,9 +1,14 @@
-#Sat Nov 26 23:11:07 CET 2011
+#Sun Nov 27 13:04:27 CET 2011
 eclipse.preferences.version=1
 encoding//src/gentulu.py=utf-8
 encoding//src/object/constant.py=utf-8
-encoding//src/object/extension.py=utf-8
 encoding//src/object/function.py=utf-8
 encoding//src/object/library.py=utf-8
+encoding//src/object/parameter.py=utf-8
+encoding//src/object/stack.py=utf-8
+encoding//src/parser/docbook.py=utf-8
 encoding//src/parser/dotspec.py=utf-8
+encoding//src/parser/dottm.py=utf-8
+encoding//src/parser/extension.py=utf-8
+encoding//src/parser/header.py=utf-8
 encoding//src/resolver.py=utf-8

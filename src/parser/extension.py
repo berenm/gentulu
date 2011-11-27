@@ -5,5 +5,5 @@
 # See accompanying file LICENSE or copy at http://www.boost.org/LICENSE
 
 class extension_parser(object):
-  def parse(self, filename):
+  def parse(self, file_name):
     pass

@@ -4,13 +4,13 @@
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE or copy at http://www.boost.org/LICENSE
 
-raw_functions = []
+all_parameters = []
 
-class raw_function:
-  def __init__(self, name, return_type, parameters, stack, **kwargs):
+class parameter:
+  def __init__(self, name, type_name, direction, stack, **kwargs):
     self.name = name
-    self.return_type = return_type
-    self.parameters = parameters
+    self.type_name = type_name
+    self.direction = direction
 
     self.stack = stack
 
@@ -18,4 +18,4 @@ class raw_function:
     for k in kwargs:
       self.other[k] = kwargs[k]
 
-    raw_functions.append(self)
+    all_parameters.append(self)

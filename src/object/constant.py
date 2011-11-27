@@ -4,14 +4,17 @@
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE or copy at http://www.boost.org/LICENSE
 
-constants = []
+raw_constants = []
 
-class constant:
-  def __init__(self, name, value, extension_name, enum_name, **kwargs):
+class raw_constant:
+  def __init__(self, name, value, stack, **kwargs):
     self.name = name
     self.value = value
 
-    self.extension_name = extension_name
-    self.enum_name = enum_name
+    self.stack = stack
 
-    constants.append(self)
+    self.other = {}
+    for k in kwargs:
+      self.other[k] = kwargs[k]
+
+    raw_constants.append(self)
