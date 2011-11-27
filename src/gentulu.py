@@ -5,16 +5,15 @@
 # See accompanying file LICENSE or copy at http://www.boost.org/LICENSE
 
 from lxml import etree, html
-from resolver import resolver
-import re
-from parser.docbook import docbook_parser
-from parser.extension import extension_parser
+from object.constant import reduce_constants, print_constants
+from object.function import reduce_functions, print_functions
 from parser.dotspec import dotspec_constant_parser, dotspec_function_parser
 from parser.dottm import dottm_parser
-from utils import log, option_parser, print_help
-from object.constant import raw_constants
-from object.function import raw_functions
-from object.library import library, libraries
+from printer.cpp import cpp_printer
+from resolver import resolver
+from utils import log, option_parser
+import re
+from printer.basic import basic_printer
 
 parser = option_parser()
 (o, a) = parser.parse_args()
@@ -139,45 +138,11 @@ sources.append(source('gl', dottm_parser,
 for s in sources:
   s.parse()
 
-def printall():
-  for c in raw_constants:
-    li = library.get(c.stack.library_name)
-    gr = li.groups[c.stack.extension_name]
-    ex = gr.extensions[c.stack.extension_name]
-    ca = ex.categories[c.stack.category_name]
+reduce_constants()
+reduce_functions()
 
-    if not c.name in ca.constants:
-      ca.constants[c.name] = c
-    elif c.value != ca.constants[c.name].value:
-      log.warn('C %s (%s, %s) already in %s.%s.%s' % (c.name, c.value, ca.constants[c.name].value, li.name, ex.name, ca.name))
-
-  for f in raw_functions:
-    li = library.get(f.stack.library_name)
-    gr = li.groups[f.stack.extension_name]
-    ex = gr.extensions[f.stack.extension_name]
-    ca = ex.categories[f.stack.category_name]
-
-    if not f.name in ca.functions:
-      ca.functions[f.name] = f
-    else:
-      log.warn('F %s already in %s.%s.%s' % (f.name, li.name, ex.name, ca.name))
-
-  for li in libraries.values():
-    print 'L:', li.name
-    for gr in li.groups.values():
-      print ' G:', gr.name
-      for ex in gr.extensions.values():
-        print '  E:', ex.name
-        for ca in ex.categories.values():
-          print '   C:', ca.name
-          print '    c:'
-          for c in ca.constants.values():
-            print '     ', c.name, ' = ', c.value
-          print '    f:'
-          for f in ca.functions.values():
-            print '     ', f.name
-
-printall()
+print_constants(cpp_printer())
+print_functions(cpp_printer())
 
 #print '#include <cstdint>'
 #for n in sorted(set([ e.name for e in enums ])):

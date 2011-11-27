@@ -95,3 +95,20 @@ class library:
       libraries[name] = library(name)
 
     return libraries[name]
+
+def print_tree(printer, category_action):
+  printer.begin()
+  for li in libraries.values():
+    printer.begin_library(li)
+    for gr in li.groups.values():
+      printer.begin_group(gr)
+      for ex in gr.extensions.values():
+        printer.begin_extension(ex)
+        for ca in ex.categories.values():
+          printer.begin_category(ca)
+          category_action(ca, printer)
+          printer.end_category(ca)
+        printer.end_extension(ex)
+      printer.end_group(gr)
+    printer.end_library(li)
+  printer.end()

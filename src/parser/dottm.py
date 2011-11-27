@@ -4,8 +4,9 @@
 # Distributed under the Boost Software License, Version 1.0.
 # See accompanying file LICENSE or copy at http://www.boost.org/LICENSE
 
-import re
+from object.parameter import type_mappings
 from utils import log
+import re
 
 class dottm_parser(object):
   def __init__(self, library_name):
@@ -15,8 +16,6 @@ class dottm_parser(object):
 
   def parse(self, file_name):
     errors = []
-
-    mappings = {}
 
     patterns = {}
     patterns['type'] = r'^(?P<name>\w+),\*,\*,\s*(?P<type>(?:struct |unsigned |const )?[*\w]+(?: \*| const)?),\*,\*,?$'
@@ -29,10 +28,10 @@ class dottm_parser(object):
           if match:
             if k == 'type':
               type_name = match.group('type')
-              if type == '*':
+              if type_name == '*':
                 type_name = match.group('name')
 
-              mappings[match.group('name')] = type_name
+              type_mappings[match.group('name')] = type_name
 
             break
         else:
@@ -40,5 +39,3 @@ class dottm_parser(object):
 
     for e in errors:
       log.error(file_name + ': ' + e)
-
-    return mappings

@@ -8,7 +8,7 @@ import re
 from utils import log
 from object.constant import raw_constant
 from object.function import raw_function
-from object.parameter import parameter
+from object.parameter import raw_parameter
 from object.stack import stack
 from copy import copy
 
@@ -93,7 +93,7 @@ class dotspec_constant_parser(object):
       log.error(file_name + ': ' + e)
 
     for k, v in values.items():
-      while v.startswith(self.extension_prefix) or v.startswith(self.constant_prefix):
+      while v.startswith(self.extension_prefix) or v.startswith(self.constant_prefix) or v.startswith(self.library_name):
         if not '.' in v:
           v = self.extension_prefix + '.' + v
 
@@ -115,7 +115,7 @@ class dotspec_function_parser(object):
     errors = []
 
     patterns = {}
-    patterns['param'] = r'^param\s+(?P<name>\w+)\s+(?P<type>\w+)\s+(?P<direction>\w+)\s+(?P<class>\w+)\s*(?P<cardinality>\[[\(\)*,/\w]*\])?\s*(?P<retained>retained)?$'
+    patterns['param'] = r'^param\s+(?P<name>\w+)\s+(?P<type>\w+)\s+(?P<direction>\w+)\s+(?P<underlying_type>\w+)\s*(?P<cardinality>\[[\(\)*,/\w]*\])?\s*(?P<retained>retained)?$'
     patterns['return'] = r'^return\s+(?P<type>\w+)$'
     patterns['category'] = r'^category\s+(?P<name>\w+)(?:\s*# old:\s*(?P<old>[-\w]+))?$'
     patterns['subcategory'] = r'^subcategory\s+(?P<name>\w+)$'
@@ -160,7 +160,8 @@ class dotspec_function_parser(object):
               current_param['name'] = match.group('name')
               current_param['type'] = match.group('type')
               current_param['direction'] = match.group('direction')
-              current_param['class'] = match.group('class')
+              current_param['underlying_type'] = match.group('underlying_type')
+
               current_param['cardinality'] = match.group('cardinality')
 
             elif k == 'vectorequiv':
@@ -227,4 +228,4 @@ class dotspec_function_parser(object):
     for f in functions:
       raw_function(f['name'], f['return'], f['parameter_list'], f['stack'])
       for k, p in f['parameters'].items():
-        parameter(p['name'], p['type'], p['direction'], f['stack'])
+        raw_parameter(p['name'], p['type'], p['direction'], f['stack'], cardinality=p['cardinality'], underlying_type=p['underlying_type'])
