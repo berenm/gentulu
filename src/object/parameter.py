@@ -36,9 +36,10 @@ class parameter:
 def reduce_parameters():
   for p in raw_parameters:
     li = library.get(p.stack.library_name)
-    gr = li.groups[p.stack.extension_name]
-    ex = gr.extensions[p.stack.extension_name]
-    ca = ex.categories[p.stack.category_name]
+    gr = li.groups[p.stack.extension_name.upper()]
+    ex = gr.extensions[p.stack.extension_name.lower()]
+#    ca = ex.categories[p.stack.category_name.lower()]
+    ca = ex.categories['functions']
     fn = ca.functions[p.stack.function_name]
 
     if not p.name in fn.parameters:

@@ -14,6 +14,7 @@ from resolver import resolver
 from utils import log, option_parser
 import re
 from printer.basic import basic_printer
+from parser.header import header_parser
 
 parser = option_parser()
 (o, a) = parser.parse_args()
@@ -87,53 +88,27 @@ sources = []
 #    index='http://www.opengl.org/registry/',
 #    base='http://www.opengl.org/registry/'))
 
-sources.append(source('gl', dotspec_constant_parser,
-    regexp=r'^api/enumext\.spec$',
-    xpath='//a/@href',
-    index='http://www.opengl.org/registry/',
-    base='http://www.opengl.org/registry/'))
+sources.append(source('gl', dotspec_constant_parser, regexp=r'^api/enumext\.spec$', xpath='//a/@href', index='http://www.opengl.org/registry/', base='http://www.opengl.org/registry/'))
+sources.append(source('gl', dotspec_function_parser, regexp=r'^api/gl(?:ext)?\.spec$', xpath='//a/@href', index='http://www.opengl.org/registry/', base='http://www.opengl.org/registry/'))
+sources.append(source('gl', dottm_parser, regexp=r'^api/gl\.tm$', xpath='//a/@href', index='http://www.opengl.org/registry/', base='http://www.opengl.org/registry/'))
+sources.append(source('gl', header_parser, regexp=r'^api/gl(?:ext)?\.h$', xpath='//a/@href', index='http://www.opengl.org/registry/', base='http://www.opengl.org/registry/'))
+sources.append(source('gl', header_parser, regexp=r'^api/gl3(?:ext)?\.h$', xpath='//a/@href', index='http://www.opengl.org/registry/', base='http://www.opengl.org/registry/'))
+sources.append(source('gl', header_parser, files=['file:///usr/include/GL/gl.h']))
 
-sources.append(source('glX', dotspec_constant_parser,
-    regexp=r'^api/glxenumext\.spec$',
-    xpath='//a/@href',
-    index='http://www.opengl.org/registry/',
-    base='http://www.opengl.org/registry/'))
+sources.append(source('glX', dotspec_constant_parser, regexp=r'^api/glxenumext\.spec$', xpath='//a/@href', index='http://www.opengl.org/registry/', base='http://www.opengl.org/registry/'))
+sources.append(source('glX', dotspec_function_parser, regexp=r'^api/glx(?:ext)?\.spec$', xpath='//a/@href', index='http://www.opengl.org/registry/', base='http://www.opengl.org/registry/'))
+sources.append(source('glX', dottm_parser, regexp=r'^api/glx\.tm$', xpath='//a/@href', index='http://www.opengl.org/registry/', base='http://www.opengl.org/registry/'))
+sources.append(source('glX', header_parser, regexp=r'^api/glx(?:ext)?\.h$', xpath='//a/@href', index='http://www.opengl.org/registry/', base='http://www.opengl.org/registry/'))
+#sources.append(source('glX', header_parser, files=['file:///usr/include/GL/glx.h']))
 
-sources.append(source('wgl', dotspec_constant_parser,
-    regexp=r'^api/wglenumext\.spec$',
-    xpath='//a/@href',
-    index='http://www.opengl.org/registry/',
-    base='http://www.opengl.org/registry/'))
+sources.append(source('wgl', dotspec_constant_parser, regexp=r'^api/wglenumext\.spec$', xpath='//a/@href', index='http://www.opengl.org/registry/', base='http://www.opengl.org/registry/'))
+sources.append(source('wgl', dotspec_function_parser, regexp=r'^api/wgl(?:ext)?\.spec$', xpath='//a/@href', index='http://www.opengl.org/registry/', base='http://www.opengl.org/registry/'))
+sources.append(source('wgl', dottm_parser, regexp=r'^api/wgl\.tm$', xpath='//a/@href', index='http://www.opengl.org/registry/', base='http://www.opengl.org/registry/'))
+sources.append(source('wgl', header_parser, regexp=r'^api/wgl(?:ext)?\.h$', xpath='//a/@href', index='http://www.opengl.org/registry/', base='http://www.opengl.org/registry/'))
 
-sources.append(source('egl', dotspec_constant_parser,
-    regexp=r'^api/eglenum\.spec$',
-    xpath='//a/@href',
-    index='http://www.khronos.org/registry/egl/',
-    base='http://www.khronos.org/registry/egl/'))
+#sources.append(source('glu', header_parser, files=['file:///usr/include/GL/glu.h']))
 
-sources.append(source('gl', dotspec_function_parser,
-    regexp=r'^api/gl(?:ext)?\.spec$',
-    xpath='//a/@href',
-    index='http://www.opengl.org/registry/',
-    base='http://www.opengl.org/registry/'))
-
-sources.append(source('glX', dotspec_function_parser,
-    regexp=r'^api/glx(?:ext)?\.spec$',
-    xpath='//a/@href',
-    index='http://www.opengl.org/registry/',
-    base='http://www.opengl.org/registry/'))
-
-sources.append(source('wgl', dotspec_function_parser,
-    regexp=r'^api/wgl(?:ext)?\.spec$',
-    xpath='//a/@href',
-    index='http://www.opengl.org/registry/',
-    base='http://www.opengl.org/registry/'))
-
-sources.append(source('gl', dottm_parser,
-    regexp=r'^api/[a-z]+\.tm$',
-    xpath='//a/@href',
-    index='http://www.opengl.org/registry/',
-    base='http://www.opengl.org/registry/'))
+sources.append(source('egl', dotspec_constant_parser, regexp=r'^api/eglenum\.spec$', xpath='//a/@href', index='http://www.khronos.org/registry/egl/', base='http://www.khronos.org/registry/egl/'))
 
 for s in sources:
   s.parse()
@@ -141,8 +116,8 @@ for s in sources:
 reduce_constants()
 reduce_functions()
 
-print_constants(cpp_printer())
-print_functions(cpp_printer())
+print_constants(basic_printer())
+print_functions(basic_printer())
 
 #print '#include <cstdint>'
 #for n in sorted(set([ e.name for e in enums ])):

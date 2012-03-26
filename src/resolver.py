@@ -28,7 +28,11 @@ class resolver(etree.Resolver):
     if url.scheme in [ 'http', 'https', 'file' ]:
       url_path, url_file = os.path.split(url.path)
       url_path = url_path.replace('/', os.sep)
-      url_path = url.hostname + url_path
+
+      if url.hostname is None:
+        url_path = 'localhost' + url_path
+      else:
+        url_path = url.hostname + url_path
 
       local_path = os.path.join(resolver.CACHE_PATH, url_path)
       local_file = os.path.join(local_path, url_file)

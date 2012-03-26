@@ -20,45 +20,44 @@ class dotspec_constant_parser(object):
 
   def parse(self, file_name):
     errors = []
-    values = {}
     constants = []
 
     patterns = {}
-    patterns['raw_constant'] = r'^(?P<name>\w+)\s*=\s*(?P<value>[-()\w]+)(?:\s*#.*)?$'
+    patterns['constant'] = r'^(?P<name>\w+)\s*=\s*(?P<value>[-()\w]+)(?:\s*#.*)?$'
     patterns['extension'] = r'^(?P<name>\w+)\s*enum\s*:\s*(?P<comments>.*)$'
     patterns['enum'] = r'^passthru:\s*/\*\s*(?P<name>\w+)\s*\*/$'
-    patterns['use'] = r'^use\s(?P<enum>\w+)\s*(?P<raw_constant>\w+)$'
+    patterns['use'] = r'^use\s(?P<enum>\w+)\s*(?P<constant>\w+)$'
 
     patterns['comment'] = r'^#.*$'
     patterns['passthru-reuse'] = r'^passthru.*Reuse.*$'
 
     with open(file_name, 'r') as dotspec_file:
       s = stack(self.library_name, file_name, self.extension_prefix, self.extension_prefix)
+      deprecated = False
 
       for line in [ l.strip() for l in dotspec_file if len(l.strip()) > 0 ]:
         for k, regex in patterns.items():
           match = re.match(regex, line)
           if match:
-            if k == 'raw_constant':
+            if k == 'constant':
               constant_name = match.group('name')
               constant_value = match.group('value')
 
               if not constant_name.startswith(self.constant_prefix):
                 constant_name = self.constant_prefix + constant_name
 
-              if constant_value.startswith(self.constant_prefix):
-                constant_value = self.library_name + '.' + constant_value
-
-              value_key = s.category_name + '.' + constant_name
-              for name in s.values():
-                values[name + '.' + constant_name] = constant_value
-
-              constants.append({'name': constant_name, 'value_key': value_key, 'stack': copy(s) })
+              constants.append({'name': constant_name, 'value': constant_value, 'stack': copy(s), 'deprecated': copy(deprecated) })
 
             elif k == 'extension':
               extension_name = match.group('name')
               if not extension_name.startswith(self.extension_prefix):
                 extension_name = self.extension_prefix + extension_name
+
+              if '_DEPRECATED' in extension_name:
+                deprecated = True
+                extension_name = extension_name.replace('_DEPRECATED', '')
+              else:
+                deprecated = False
 
               s.extension_name = extension_name
               s.category_name = extension_name
@@ -68,42 +67,37 @@ class dotspec_constant_parser(object):
               if not enum_name.startswith(self.extension_prefix):
                 enum_name = self.extension_prefix + enum_name
 
+              if '_DEPRECATED' in enum_name:
+                deprecated = True
+                enum_name = enum_name.replace('_DEPRECATED', '')
+              else:
+                deprecated = False
+
               s.category_name = enum_name
 
             elif k == 'use':
               foreign_enum_name = match.group('enum')
-              constant_name = match.group('raw_constant')
+              constant_name = match.group('constant')
 
               if not foreign_enum_name.startswith(self.extension_prefix):
                 foreign_enum_name = self.extension_prefix + foreign_enum_name
               if not constant_name.startswith(self.constant_prefix):
                 constant_name = self.constant_prefix + constant_name
 
-              value_key = foreign_enum_name + '.' + constant_name
-              for name in s.values():
-                values[name + '.' + constant_name] = value_key
+              current_deprecated = deprecated
+              if '_DEPRECATED' in foreign_enum_name:
+                foreign_enum_name = foreign_enum_name.replace('_DEPRECATED', '')
+                current_deprecated = True
 
-              constants.append({'name': constant_name, 'value_key': value_key, 'stack': copy(s) })
+              value_key = foreign_enum_name + '.' + constant_name
+              constants.append({'name': constant_name, 'value': value_key, 'stack': copy(s), 'deprecated': copy(current_deprecated) })
 
             break
         else:
           errors.append('U: ' + line)
 
-    for e in errors:
-      log.error(file_name + ': ' + e)
-
-    for k, v in values.items():
-      while v.startswith(self.extension_prefix) or v.startswith(self.constant_prefix) or v.startswith(self.library_name):
-        if not '.' in v:
-          v = self.extension_prefix + '.' + v
-
-        values[k] = values.get(v, values.get(v.replace('.', '_DEPRECATED.'), v))
-        v = values[k]
-
     for c in constants:
-      c['value'] = values.get(c['value_key'], values.get(c['value_key'].replace('.', '_DEPRECATED.'), c['value_key']))
-
-    return [ raw_constant(c['name'], c['value'], c['stack']) for c in constants ]
+      raw_constant(c['name'], c['value'], c['stack'], deprecated=c['deprecated'])
 
 class dotspec_function_parser(object):
   def __init__(self, library_name):
@@ -119,7 +113,7 @@ class dotspec_function_parser(object):
     patterns['return'] = r'^return\s+(?P<type>\w+)$'
     patterns['category'] = r'^category\s+(?P<name>\w+)(?:\s*# old:\s*(?P<old>[-\w]+))?$'
     patterns['subcategory'] = r'^subcategory\s+(?P<name>\w+)$'
-    patterns['raw_function'] = r'^(?P<name>\w+)\s*\((?P<parameters>[\w\s,]*)\)$'
+    patterns['function'] = r'^(?P<name>\w+)\s*\((?P<parameters>[\w\s,]*)\)$'
     patterns['version'] = r'^version\s+(?P<version>[.\w]+)$'
     patterns['deprecated'] = r'^deprecated\s+(?P<deprecated>[.\w]+)$'
     patterns['vectorequiv'] = r'^vectorequiv\s+(?P<name>[.\w]+)$'
@@ -197,10 +191,15 @@ class dotspec_function_parser(object):
               if not category_name.startswith(self.extension_prefix):
                 category_name = self.extension_prefix + category_name
 
+              if '_DEPRECATED' in extension_name:
+                extension_name = extension_name.replace('_DEPRECATED', '')
+              if '_DEPRECATED' in category_name:
+                category_name = category_name.replace('_DEPRECATED', '')
+
               s.extension_name = extension_name
               s.category_name = category_name
 
-            elif k == 'raw_function':
+            elif k == 'function':
               if current_function is not None:
                 functions.append(current_function)
 
@@ -222,8 +221,8 @@ class dotspec_function_parser(object):
         else:
           errors.append('U: ' + line)
 
-    for e in errors:
-      log.error(file_name + ': ' + e)
+#    for e in errors:
+#      log.error(file_name + ': ' + e)
 
     for f in functions:
       raw_function(f['name'], f['return'], f['parameter_list'], f['stack'])
